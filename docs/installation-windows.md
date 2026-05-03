@@ -1,22 +1,24 @@
-# Installation Windows
+# Installation Windows ALGIA Cabinet
 
-## Objectif
-
-Ce document décrit le parcours cible pour installer ALGIA Cabinet sur un ordinateur Windows.
-
-## Parcours cible
+## Étapes
 
 1. Installer Docker Desktop.
-2. Ouvrir Docker Desktop.
-3. Télécharger le pack ALGIA Cabinet.
-4. Lancer l'installation.
-5. Attendre la fin du processus.
-6. Ouvrir ALGIA Cabinet dans le navigateur.
+2. Lancer Docker Desktop.
+3. Décompresser le pack ALGIA Cabinet.
+4. Double-cliquer sur `INSTALLER-ALGIA-CABINET.bat`.
+5. Attendre le téléchargement et le démarrage des conteneurs.
+6. Ouvrir `http://localhost:8080`.
 
-## Principe
+## Identifiants
 
-L'installation doit rester simple, locale et compréhensible par un utilisateur non technique.
+Utilisateur :
 
-## Statut
+```text
+Administrator
+```
 
-Ce guide est un cadrage. Les scripts réels seront ajoutés dans une phase ultérieure.
+Mot de passe :
+
+```text
+Voir le fichier .env généré par l installateur.
+```

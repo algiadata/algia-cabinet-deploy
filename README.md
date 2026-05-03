@@ -1,47 +1,66 @@
 # ALGIA Cabinet Deploy
 
-Ce dépôt contient la future base d'installation locale de **ALGIA Cabinet**.
+Pack de déploiement local Docker pour ALGIA Cabinet.
 
-Objectif : permettre une installation simple chez un cabinet, en local, avec Docker.
+## Objectif
 
-## Principe
+Installer ALGIA Cabinet chez un cabinet médical en local, avec un lancement simple sous Windows.
 
-- Installation locale
-- Données chez l'utilisateur
-- Déploiement Docker
-- Sauvegarde documentée
-- Restauration documentée
-- Scripts Windows prévus
+## Installation rapide Windows
 
-## Dépôt applicatif associé
+1. Installer Docker Desktop.
+2. Lancer Docker Desktop.
+3. Double-cliquer sur :
+
+```text
+INSTALLER-ALGIA-CABINET.bat
+```
+
+4. Ouvrir :
+
+```text
+http://localhost:8080
+```
+
+## Scripts Windows
+
+```text
+INSTALLER-ALGIA-CABINET.bat
+DEMARRER-ALGIA-CABINET.bat
+ARRETER-ALGIA-CABINET.bat
+SAUVEGARDE-ALGIA-CABINET.bat
+```
+
+## Configuration
+
+Le fichier `.env` est créé automatiquement à partir de `.env.example`.
+
+Image applicative attendue :
+
+```text
+algiadata/algia-cabinet:latest
+```
+
+## Données locales
+
+Les données sont stockées dans des volumes Docker locaux :
+
+```text
+db-data
+sites
+logs
+```
+
+## Sauvegardes
+
+Les sauvegardes sont créées dans :
+
+```text
+backups/
+```
+
+## Dépôt applicatif
 
 ```text
 algiadata/algia-cabinet
 ```
-
-## Structure cible
-
-```text
-algia-cabinet-deploy/
-├── README.md
-├── docker-compose.yml
-├── .env.example
-├── installer/
-│   └── windows/
-│       ├── install.ps1
-│       ├── start.ps1
-│       ├── stop.ps1
-│       └── backup.ps1
-├── docs/
-│   ├── installation-windows.md
-│   ├── docker-desktop.md
-│   ├── sauvegarde.md
-│   └── depannage.md
-└── releases/
-```
-
-## Statut
-
-Phase actuelle : cadrage déploiement.
-
-Aucun script d'installation ne doit être ajouté avant validation de l'architecture produit dans le dépôt `algia-cabinet`.

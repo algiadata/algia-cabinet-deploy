@@ -1,22 +1,24 @@
-# Dépannage
+# Dépannage ALGIA Cabinet
 
-## Objectif
+## Docker non lancé
 
-Ce document regroupera les problèmes fréquents pendant l'installation et l'utilisation locale.
+Lancer Docker Desktop, attendre le démarrage complet, puis relancer l installateur.
 
-## Cas à documenter plus tard
+## Voir l état
 
-- Docker Desktop non ouvert
-- port déjà utilisé
-- mot de passe oublié
-- application inaccessible dans le navigateur
-- sauvegarde introuvable
-- redémarrage après coupure électrique
+```powershell
+docker compose --env-file .env ps
+```
 
-## Règle produit
+## Voir les logs
 
-Le dépannage doit être écrit pour un utilisateur non technique.
+```powershell
+docker compose --env-file .env logs -f
+```
 
-## Statut
+## Redémarrer
 
-Document de cadrage. Les cas réels seront ajoutés après les premiers tests d'installation.
+```text
+ARRETER-ALGIA-CABINET.bat
+DEMARRER-ALGIA-CABINET.bat
+```

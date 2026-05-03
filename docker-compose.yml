@@ -1,0 +1,196 @@
+name: ${PROJECT_NAME:-algia-cabinet}
+
+services:
+  db:
+    image: mariadb:${MARIADB_VERSION:-10.6}
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --skip-character-set-client-handshake
+      - --skip-innodb-read-only-compressed
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    volumes:
+      - db-data:/var/lib/mysql
+    restart: unless-stopped
+
+  redis-cache:
+    image: redis:6.2-alpine
+    restart: unless-stopped
+
+  redis-queue:
+    image: redis:6.2-alpine
+    restart: unless-stopped
+
+  configurator:
+    image: ${ALGIA_CABINET_IMAGE}
+    env_file:
+      - .env
+    command:
+      - bash
+      - -c
+      - |
+        ls -1 apps > sites/apps.txt
+        bench set-config -g db_host db
+        bench set-config -g db_port 3306
+        bench set-config -g redis_cache "redis://redis-cache:6379"
+        bench set-config -g redis_queue "redis://redis-queue:6379"
+        bench set-config -g redis_socketio "redis://redis-queue:6379"
+        bench set-config -g socketio_port 9000
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+      - logs:/home/frappe/frappe-bench/logs
+    depends_on:
+      - db
+      - redis-cache
+      - redis-queue
+    restart: "no"
+
+  create-site:
+    image: ${ALGIA_CABINET_IMAGE}
+    env_file:
+      - .env
+    command:
+      - bash
+      - -c
+      - |
+        wait-for-it -t 180 db:3306
+        wait-for-it -t 180 redis-cache:6379
+        wait-for-it -t 180 redis-queue:6379
+        if [ ! -f "sites/$${SITE_NAME}/site_config.json" ]; then
+          bench new-site "$${SITE_NAME}" \
+            --no-mariadb-socket \
+            --mariadb-user-host-login-scope='%' \
+            --db-root-username=root \
+            --db-root-password="$${DB_ROOT_PASSWORD}" \
+            --db-password="$${DB_PASSWORD}" \
+            --admin-password="$${ADMIN_PASSWORD}" \
+            --install-app algia_cabinet \
+            --set-default
+        fi
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+      - logs:/home/frappe/frappe-bench/logs
+    depends_on:
+      - configurator
+    restart: "no"
+
+  backend:
+    image: ${ALGIA_CABINET_IMAGE}
+    env_file:
+      - .env
+    command:
+      - bash
+      - -c
+      - |
+        until [ -f "sites/$${SITE_NAME}/site_config.json" ]; do sleep 5; done
+        gunicorn --chdir=/home/frappe/frappe-bench/sites --bind=0.0.0.0:8000 --threads=4 --workers=2 --worker-class=gthread --worker-tmp-dir=/dev/shm --timeout=120 frappe.app:application --preload
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+      - logs:/home/frappe/frappe-bench/logs
+    depends_on:
+      - db
+      - redis-cache
+      - redis-queue
+      - create-site
+    restart: unless-stopped
+
+  frontend:
+    image: ${ALGIA_CABINET_IMAGE}
+    env_file:
+      - .env
+    command:
+      - nginx-entrypoint.sh
+    environment:
+      BACKEND: backend:8000
+      FRAPPE_SITE_NAME_HEADER: ${SITE_NAME}
+      SOCKETIO: websocket:9000
+      UPSTREAM_REAL_IP_ADDRESS: 127.0.0.1
+      UPSTREAM_REAL_IP_HEADER: X-Forwarded-For
+      UPSTREAM_REAL_IP_RECURSIVE: "off"
+      PROXY_READ_TIMEOUT: 120
+      CLIENT_MAX_BODY_SIZE: 100m
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+      - logs:/home/frappe/frappe-bench/logs
+    ports:
+      - "${HTTP_PORT:-8080}:8080"
+    depends_on:
+      - backend
+      - websocket
+    restart: unless-stopped
+
+  websocket:
+    image: ${ALGIA_CABINET_IMAGE}
+    env_file:
+      - .env
+    command:
+      - node
+      - /home/frappe/frappe-bench/apps/frappe/socketio.js
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+      - logs:/home/frappe/frappe-bench/logs
+    depends_on:
+      - redis-queue
+      - create-site
+    restart: unless-stopped
+
+  queue-short:
+    image: ${ALGIA_CABINET_IMAGE}
+    env_file:
+      - .env
+    command:
+      - bash
+      - -c
+      - |
+        until [ -f "sites/$${SITE_NAME}/site_config.json" ]; do sleep 5; done
+        bench worker --queue short,default
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+      - logs:/home/frappe/frappe-bench/logs
+    depends_on:
+      - redis-queue
+      - create-site
+    restart: unless-stopped
+
+  queue-long:
+    image: ${ALGIA_CABINET_IMAGE}
+    env_file:
+      - .env
+    command:
+      - bash
+      - -c
+      - |
+        until [ -f "sites/$${SITE_NAME}/site_config.json" ]; do sleep 5; done
+        bench worker --queue long,default,short
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+      - logs:/home/frappe/frappe-bench/logs
+    depends_on:
+      - redis-queue
+      - create-site
+    restart: unless-stopped
+
+  scheduler:
+    image: ${ALGIA_CABINET_IMAGE}
+    env_file:
+      - .env
+    command:
+      - bash
+      - -c
+      - |
+        until [ -f "sites/$${SITE_NAME}/site_config.json" ]; do sleep 5; done
+        bench schedule
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+      - logs:/home/frappe/frappe-bench/logs
+    depends_on:
+      - redis-queue
+      - create-site
+    restart: unless-stopped
+
+volumes:
+  db-data:
+  sites:
+  logs:
