@@ -64,3 +64,19 @@ backups/
 ```text
 algiadata/algia-cabinet
 ```
+
+## Générer un pack ZIP Windows
+
+Depuis le dépôt `algia-cabinet-deploy` :
+
+```bash
+./scripts/build-release.sh
+```
+
+Le ZIP est généré dans :
+
+```text
+releases/
+```
+
+Le pack généré ne contient pas `.env`. Le fichier `.env` est créé automatiquement chez l’utilisateur lors de l’installation.

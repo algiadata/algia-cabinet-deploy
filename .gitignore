@@ -1,4 +1,6 @@
 .env
+.build-release/
+releases/*.zip
 backups/*
 !backups/.gitkeep
 *.log
