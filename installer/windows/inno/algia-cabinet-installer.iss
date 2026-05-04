@@ -41,7 +41,7 @@ Source: "..\..\..\installer\windows\scripts\*"; DestDir: "{app}\installer\window
 
 [Icons]
 Name: "{group}\ALGIA Cabinet"; Filename: "http://localhost:8080"
-Name: "{commondesktop}\ALGIA Cabinet"; Filename: "http://localhost:8080"; Tasks: desktopicon
+Name: "{userdesktop}\ALGIA Cabinet"; Filename: "http://localhost:8080"; Tasks: desktopicon
 
 [Tasks]
 Name: "desktopicon"; Description: "Creer un raccourci sur le Bureau"; GroupDescription: "Raccourcis :"; Flags: unchecked
