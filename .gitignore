@@ -5,3 +5,8 @@ backups/*
 !backups/.gitkeep
 *.log
 *.tmp
+offline-images/*.tar
+offline-images/*.tar.gz
+offline-images/SHA256_IMAGES.txt
+releases/algia-cabinet-installer-win64.exe
+releases/ALGIA-Cabinet-Client-*/
