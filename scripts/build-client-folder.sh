@@ -18,6 +18,34 @@ EXE_SOURCE="$ROOT/releases/algia-cabinet-installer-win64.exe"
 rm -rf "$PACK_DIR"
 mkdir -p "$PACK_DIR/offline-images"
 
+for file in \
+  docker-compose.yml \
+  .env.example \
+  README.md \
+  INSTALLATION_CLIENT.txt
+do
+  if [ -f "$file" ]; then
+    cp -f "$file" "$PACK_DIR/"
+  else
+    echo "ERREUR: fichier manquant: $file"
+    exit 1
+  fi
+done
+
+for dir in \
+  bootstrap \
+  manifests \
+  installer \
+  docs
+do
+  if [ -d "$dir" ]; then
+    cp -a "$dir" "$PACK_DIR/"
+  else
+    echo "ERREUR: dossier manquant: $dir"
+    exit 1
+  fi
+done
+
 if [ -f "$EXE_SOURCE" ]; then
   cp -f "$EXE_SOURCE" "$PACK_DIR/algia-cabinet-installer-win64.exe"
 else
@@ -25,17 +53,19 @@ else
 Le fichier algia-cabinet-installer-win64.exe n'existe pas encore.
 
 Pour le creer :
-1. Installer Inno Setup sur Windows.
-2. Ouvrir installer/windows/inno/algia-cabinet-installer.iss.
-3. Compiler le script.
-4. Copier releases/algia-cabinet-installer-win64.exe dans ce dossier client.
+1. Compiler le launcher Windows.
+2. Copier l'executable dans releases/algia-cabinet-installer-win64.exe.
+3. Relancer scripts/build-client-folder.sh.
 TXT
 fi
 
-cp -f INSTALLATION_CLIENT.txt "$PACK_DIR/"
-
 if [ -d offline-images ]; then
   cp -a offline-images/. "$PACK_DIR/offline-images/" 2>/dev/null || true
+fi
+
+if [ -f "$PACK_DIR/.env" ]; then
+  echo "ERREUR: .env ne doit pas etre inclus dans le pack client"
+  exit 1
 fi
 
 (
