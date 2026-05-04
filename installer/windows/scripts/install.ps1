@@ -43,7 +43,10 @@ function Load-OfflineImages {
 
     foreach ($dir in $candidates) {
         if (Test-Path $dir) {
-            $images = Get-ChildItem -Path (Join-Path $dir "*") -File -Include *.tar,*.tar.gz -ErrorAction SilentlyContinue
+            $images = @()
+            $images += Get-ChildItem -Path $dir -File -Filter "*.tar" -ErrorAction SilentlyContinue
+            $images += Get-ChildItem -Path $dir -File -Filter "*.tar.gz" -ErrorAction SilentlyContinue
+
             if ($images.Count -gt 0) {
                 Write-Step "Chargement images Docker offline"
                 foreach ($img in $images) {
@@ -71,7 +74,7 @@ if (-not (Get-Command docker -ErrorAction SilentlyContinue)) {
     exit 1
 }
 
-docker info *> $null
+cmd.exe /c "docker info >NUL 2>NUL"
 if ($LASTEXITCODE -ne 0) {
     Write-Host "Docker Desktop n'est pas lance." -ForegroundColor Red
     Write-Host "Lance Docker Desktop puis relance l'installateur ALGIA Cabinet."
@@ -95,7 +98,7 @@ if (-not (Test-Path ".env")) {
 
     Write-Host "Fichier .env cree." -ForegroundColor Green
     Write-Host "Utilisateur : Administrator" -ForegroundColor Yellow
-    Write-Host "Mot de passe : $admin" -ForegroundColor Yellow
+    Write-Host "Mot de passe admin: $admin" -ForegroundColor Yellow
     Write-Host "Garde ce mot de passe." -ForegroundColor Yellow
 } else {
     Write-Host "Fichier .env deja present."
@@ -134,6 +137,7 @@ docker compose --env-file .env ps
 
 $port = Get-EnvValue "HTTP_PORT" "8080"
 $url = "http://localhost:$port"
+$adminPasswordFinal = Get-EnvValue "ADMIN_PASSWORD" "non recupere"
 
 Write-Step "Ouverture navigateur"
 Start-Process $url
@@ -141,4 +145,6 @@ Start-Process $url
 Write-Host ""
 Write-Host "ALGIA Cabinet est lance : $url" -ForegroundColor Green
 Write-Host "Utilisateur : Administrator"
-Write-Host "Mot de passe : voir le fichier .env"
+Write-Host "Mot de passe admin: $adminPasswordFinal"
+Write-Host "Installation terminee"
+exit 0
