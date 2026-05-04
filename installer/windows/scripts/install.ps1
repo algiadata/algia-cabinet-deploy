@@ -38,9 +38,9 @@ if (-not (Test-Path ".env")) {
     $db = "Db-" + (New-Secret)
 
     $content = Get-Content ".env" -Raw
-    $content = $content -replace "ADMIN_PASSWORD=admin", "ADMIN_PASSWORD=$admin"
-    $content = $content -replace "DB_ROOT_PASSWORD=admin", "DB_ROOT_PASSWORD=$root"
-    $content = $content -replace "DB_PASSWORD=admin", "DB_PASSWORD=$db"
+    $content = $content -replace "ADMIN_PASSWORD=change_me_admin", "ADMIN_PASSWORD=$admin"
+    $content = $content -replace "DB_ROOT_PASSWORD=change_me_root", "DB_ROOT_PASSWORD=$root"
+    $content = $content -replace "DB_PASSWORD=change_me_db", "DB_PASSWORD=$db"
     Set-Content ".env" $content -Encoding UTF8
 
     Write-Host "Fichier .env cree." -ForegroundColor Green
@@ -51,11 +51,27 @@ if (-not (Test-Path ".env")) {
     Write-Host "Fichier .env deja present."
 }
 
+Write-Step "Validation Docker Compose"
+docker compose --env-file .env config *> $null
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "Configuration Docker Compose invalide." -ForegroundColor Red
+    exit 1
+}
+
 Write-Step "Telechargement des images Docker"
 docker compose --env-file .env pull
 
+Write-Step "Demarrage infrastructure"
+docker compose --env-file .env up -d db redis-cache redis-queue redis-socketio
+
+Write-Step "Configuration du site"
+docker compose --env-file .env run --rm configurator
+
+Write-Step "Creation ou migration du site"
+docker compose --env-file .env run --rm create-site
+
 Write-Step "Demarrage ALGIA Cabinet"
-docker compose --env-file .env up -d
+docker compose --env-file .env up -d backend websocket queue-short queue-long scheduler frontend
 
 Write-Step "Etat des conteneurs"
 docker compose --env-file .env ps
