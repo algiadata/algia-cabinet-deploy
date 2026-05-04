@@ -19,7 +19,10 @@ for file in \
   INSTALLER-ALGIA-CABINET.bat \
   DEMARRER-ALGIA-CABINET.bat \
   ARRETER-ALGIA-CABINET.bat \
-  SAUVEGARDE-ALGIA-CABINET.bat
+  SAUVEGARDE-ALGIA-CABINET.bat \
+  manifests/release.json \
+  bootstrap/configurator.sh \
+  bootstrap/create-site.sh
 do
   if [ ! -f "$file" ]; then
     echo "ERREUR: fichier manquant: $file"
@@ -27,15 +30,22 @@ do
   fi
 done
 
-if [ ! -d installer/windows/scripts ]; then
-  echo "ERREUR: dossier manquant: installer/windows/scripts"
-  exit 1
-fi
+for dir in \
+  installer/windows/scripts \
+  docs
+do
+  if [ ! -d "$dir" ]; then
+    echo "ERREUR: dossier manquant: $dir"
+    exit 1
+  fi
+done
 
-if [ ! -d docs ]; then
-  echo "ERREUR: dossier manquant: docs"
-  exit 1
-fi
+echo "=== VALIDATION DOCKER COMPOSE ==="
+docker compose --env-file .env.example config >/dev/null
+
+echo "=== VALIDATION SCRIPTS BASH ==="
+bash -n bootstrap/configurator.sh
+bash -n bootstrap/create-site.sh
 
 echo "=== PREPARE BUILD ==="
 rm -rf "$BUILD_ROOT"
@@ -55,11 +65,21 @@ mkdir -p "$PACK_DIR/installer"
 mkdir -p "$PACK_DIR/docs"
 mkdir -p "$PACK_DIR/backups"
 mkdir -p "$PACK_DIR/releases"
+mkdir -p "$PACK_DIR/logs"
+mkdir -p "$PACK_DIR/state"
+mkdir -p "$PACK_DIR/manifests"
+mkdir -p "$PACK_DIR/bootstrap"
 
 cp -r installer/windows "$PACK_DIR/installer/"
 cp -r docs/. "$PACK_DIR/docs/"
+cp -f manifests/release.json "$PACK_DIR/manifests/"
+cp -f bootstrap/configurator.sh "$PACK_DIR/bootstrap/"
+cp -f bootstrap/create-site.sh "$PACK_DIR/bootstrap/"
+
 touch "$PACK_DIR/backups/.gitkeep"
 touch "$PACK_DIR/releases/.gitkeep"
+touch "$PACK_DIR/logs/.gitkeep"
+touch "$PACK_DIR/state/.gitkeep"
 
 cat > "$PACK_DIR/LISEZ-MOI.txt" <<'TXT'
 ALGIA Cabinet - Installation Windows
@@ -79,6 +99,11 @@ echo "=== VERIF PAS DE SECRET ==="
 
 if [ -f "$PACK_DIR/.env" ]; then
   echo "ERREUR: .env present dans le pack"
+  exit 1
+fi
+
+if grep -R "ADMIN_PASSWORD=Admin-" "$PACK_DIR" >/dev/null 2>&1; then
+  echo "ERREUR: mot de passe admin detecte dans le pack"
   exit 1
 fi
 
