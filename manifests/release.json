@@ -1,12 +1,13 @@
 {
   "product": "ALGIA Cabinet",
-  "version": "v0.1.0",
-  "image": "algiadata/algia-cabinet:v0.1.0",
+  "version": "v0.1.1",
+  "image": "algiadata/algia-cabinet:v0.1.1",
   "site_name": "cabinet.local",
   "default_http_port": 8080,
   "timezone": "Africa/Algiers",
   "install_apps": [
     "algia_cabinet"
   ],
-  "schema_version": 1
+  "schema_version": 1,
+  "app_git_commit": "885bcb5cb4a29de00777b66c010ddbb0da37753e"
 }
