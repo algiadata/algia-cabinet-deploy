@@ -1,0 +1,24 @@
+ALGIA Cabinet - Installation client Windows
+
+Contenu du pack :
+- algia-cabinet-installer-win64.exe
+- offline-images/
+- SHA256.txt
+- INSTALLATION_CLIENT.txt
+
+Etapes :
+1. Installer Docker Desktop.
+2. Lancer Docker Desktop et attendre que Docker soit demarre.
+3. Garder le dossier offline-images a cote du fichier .exe.
+4. Double-cliquer sur algia-cabinet-installer-win64.exe.
+5. L'installation charge les images Docker locales si elles sont presentes.
+6. Ouvrir ensuite : http://localhost:8080
+
+Connexion :
+- Utilisateur : Administrator
+- Mot de passe : affiche pendant l'installation et stocke dans le fichier .env genere.
+
+Important :
+- Ne pas supprimer le fichier .env apres installation.
+- Ne pas supprimer les volumes Docker si vous voulez conserver les donnees.
+- Les donnees restent sur le PC local du client.
