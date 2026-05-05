@@ -1,7 +1,7 @@
 {
   "product": "ALGIA Cabinet",
-  "version": "v0.1.3",
-  "image": "algiadata/algia-cabinet:v0.1.3",
+  "version": "v0.1.4",
+  "image": "algiadata/algia-cabinet:v0.1.4",
   "site_name": "cabinet.local",
   "default_http_port": 8080,
   "timezone": "Africa/Algiers",

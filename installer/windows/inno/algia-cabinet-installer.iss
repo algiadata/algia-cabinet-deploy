@@ -1,7 +1,7 @@
 #define MyAppName "ALGIA Cabinet"
-#define MyAppVersion "0.1.3"
+#define MyAppVersion "0.1.4"
 #define MyAppPublisher "ALGIA Data"
-#define MyAppExeName "ALGIA-Cabinet-Setup-v0.1.3"
+#define MyAppExeName "ALGIA-Cabinet-Setup-v0.1.4"
 
 [Setup]
 AppId={{A1CF6DFB-90F1-49D7-9D6E-A08E0F4D0101}
