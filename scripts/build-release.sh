@@ -20,6 +20,10 @@ for file in \
   DEMARRER-ALGIA-CABINET.bat \
   ARRETER-ALGIA-CABINET.bat \
   SAUVEGARDE-ALGIA-CABINET.bat \
+  METTRE-A-JOUR-ALGIA-CABINET.bat \
+  RESTAURER-ALGIA-CABINET.bat \
+  installer/windows/scripts/update.ps1 \
+  installer/windows/scripts/restore.ps1 \
   manifests/release.json \
   bootstrap/configurator.sh \
   bootstrap/create-site.sh
@@ -60,6 +64,8 @@ cp -f INSTALLER-ALGIA-CABINET.bat "$PACK_DIR/"
 cp -f DEMARRER-ALGIA-CABINET.bat "$PACK_DIR/"
 cp -f ARRETER-ALGIA-CABINET.bat "$PACK_DIR/"
 cp -f SAUVEGARDE-ALGIA-CABINET.bat "$PACK_DIR/"
+cp -f METTRE-A-JOUR-ALGIA-CABINET.bat "$PACK_DIR/"
+cp -f RESTAURER-ALGIA-CABINET.bat "$PACK_DIR/"
 
 mkdir -p "$PACK_DIR/installer"
 mkdir -p "$PACK_DIR/docs"
@@ -91,8 +97,26 @@ ALGIA Cabinet - Installation Windows
 5. Utilisateur : Administrator.
 6. Mot de passe : voir le fichier .env généré après installation.
 
-Ne supprimez pas le fichier .env après installation.
-Les données restent sur le PC local via Docker.
+Boutons disponibles :
+
+- INSTALLER-ALGIA-CABINET.bat
+- DEMARRER-ALGIA-CABINET.bat
+- ARRETER-ALGIA-CABINET.bat
+- SAUVEGARDE-ALGIA-CABINET.bat
+- METTRE-A-JOUR-ALGIA-CABINET.bat
+- RESTAURER-ALGIA-CABINET.bat
+
+Sauvegarde :
+Le bouton de sauvegarde demande le dossier ou stocker la sauvegarde.
+
+Mise a jour :
+Le bouton de mise a jour cree une sauvegarde de securite avant de telecharger la nouvelle image Docker.
+
+Restauration :
+Le bouton de restauration demande le dossier de sauvegarde a restaurer.
+
+Ne supprimez pas le fichier .env apres installation.
+Les donnees restent sur le PC local via Docker.
 TXT
 
 echo "=== VERIF PAS DE SECRET ==="
