@@ -129,6 +129,24 @@ docker compose --env-file .env run --rm configurator
 Write-Step "Creation ou migration du site"
 docker compose --env-file .env run --rm create-site
 
+Write-Step "Synchronisation mot de passe Administrator"
+
+$Site = Get-EnvValue "SITE_NAME" "cabinet.local"
+$AdminPassword = Get-EnvValue "ADMIN_PASSWORD" ""
+
+if ([string]::IsNullOrWhiteSpace($AdminPassword)) {
+    Write-Host "ADMIN_PASSWORD introuvable dans .env." -ForegroundColor Red
+    exit 1
+}
+
+docker compose --env-file .env run --rm backend bash -lc "cd /home/frappe/frappe-bench && bench --site '$Site' set-admin-password '$AdminPassword'"
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "Synchronisation du mot de passe Administrator echouee." -ForegroundColor Red
+    exit 1
+}
+
+Write-Host "Mot de passe Administrator synchronise avec le fichier .env." -ForegroundColor Green
+
 Write-Step "Demarrage ALGIA Cabinet"
 docker compose --env-file .env up -d backend websocket queue-short queue-long scheduler frontend
 
