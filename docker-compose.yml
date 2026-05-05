@@ -224,9 +224,9 @@ services:
       - nginx-entrypoint.sh
     environment:
       <<: *app-env
-      BACKEND: backend:8000
+      BACKEND: ${COMPOSE_PROJECT_NAME}_backend:8000
       FRAPPE_SITE_NAME_HEADER: ${SITE_NAME}
-      SOCKETIO: websocket:${SOCKETIO_PORT}
+      SOCKETIO: ${COMPOSE_PROJECT_NAME}_websocket:${SOCKETIO_PORT}
       UPSTREAM_REAL_IP_ADDRESS: 127.0.0.1
       UPSTREAM_REAL_IP_HEADER: X-Forwarded-For
       UPSTREAM_REAL_IP_RECURSIVE: "off"
