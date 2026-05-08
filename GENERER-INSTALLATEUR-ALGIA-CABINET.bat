@@ -25,6 +25,7 @@ if errorlevel 1 (
 
 echo.
 echo Installateur genere :
-echo releases\ALGIA-Cabinet-Setup-v0.1.5.exe
+echo releases\ALGIA-Cabinet-Setup-v0.1.6.exe
 pause
+
 

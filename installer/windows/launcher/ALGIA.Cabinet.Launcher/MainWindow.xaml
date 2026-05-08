@@ -85,7 +85,7 @@
                                    Foreground="#93C5FD"
                                    FontSize="12"/>
                         <TextBlock x:Name="VersionText"
-                                   Text="v0.1.5"
+                                   Text="v0.1.6"
                                    Foreground="White"
                                    FontSize="24"
                                    FontWeight="Bold"/>
@@ -245,7 +245,7 @@
                                        Foreground="#111827"
                                        DockPanel.Dock="Left"/>
                             <TextBlock x:Name="ImageText"
-                                       Text="Image : algiadata/algia-cabinet:v0.1.5"
+                                       Text="Image : algiadata/algia-cabinet:v0.1.6"
                                        Foreground="#6B7280"
                                        HorizontalAlignment="Right"
                                        DockPanel.Dock="Right"/>
@@ -277,6 +277,7 @@
         </Border>
     </Grid>
 </Window>
+
 
 
 
