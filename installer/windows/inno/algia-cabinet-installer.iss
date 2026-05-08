@@ -1,7 +1,7 @@
-#define MyAppName "ALGIA Cabinet"
-#define MyAppVersion "0.1.5"
+﻿#define MyAppName "ALGIA Cabinet"
+#define MyAppVersion "0.1.6"
 #define MyAppPublisher "ALGIA Data"
-#define MyAppExeName "ALGIA-Cabinet-Setup-v0.1.5"
+#define MyAppExeName "ALGIA-Cabinet-Setup-v0.1.6"
 
 [Setup]
 AppId={{A1CF6DFB-90F1-49D7-9D6E-A08E0F4D0101}
@@ -67,6 +67,7 @@ Name: "desktopicon"; Description: "Creer un raccourci ALGIA Cabinet sur le Burea
 
 [Run]
 Filename: "{app}\launcher\ALGIA-Cabinet-Launcher.exe"; Description: "Lancer ALGIA Cabinet Launcher"; Flags: postinstall nowait skipifsilent
+
 
 
 
