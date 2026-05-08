@@ -79,7 +79,7 @@ app_image = sys.argv[2]
 app_commit = sys.argv[3]
 
 path = Path("manifests/release.json")
-data = json.loads(path.read_text(encoding="utf-8"))
+data = json.loads(path.read_text(encoding="utf-8-sig"))
 
 data["version"] = version
 data["image"] = f"{app_image}:{version}"
@@ -99,7 +99,7 @@ version = sys.argv[1]
 app_image = sys.argv[2]
 
 path = Path(".env.example")
-lines = path.read_text(encoding="utf-8").splitlines()
+lines = path.read_text(encoding="utf-8-sig").splitlines()
 out = []
 
 for line in lines:

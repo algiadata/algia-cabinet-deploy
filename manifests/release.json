@@ -1,13 +1,13 @@
-﻿{
-    "product":  "ALGIA Cabinet",
-    "version":  "v0.1.5",
-    "image":  "algiadata/algia-cabinet:v0.1.4",
-    "site_name":  "cabinet.local",
-    "default_http_port":  8080,
-    "timezone":  "Africa/Algiers",
-    "install_apps":  [
-                         "algia_cabinet"
-                     ],
-    "schema_version":  1,
-    "app_git_commit":  "4a76658a3669a2fce2fbf2901b216fa51390649e"
+{
+  "product": "ALGIA Cabinet",
+  "version": "v0.1.5",
+  "image": "algiadata/algia-cabinet:v0.1.5",
+  "site_name": "cabinet.local",
+  "default_http_port": 8080,
+  "timezone": "Africa/Algiers",
+  "install_apps": [
+    "algia_cabinet"
+  ],
+  "schema_version": 1,
+  "app_git_commit": "1b8ee47ca56c88f2f21dd3fadce17cb938a45c8e"
 }

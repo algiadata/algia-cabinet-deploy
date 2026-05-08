@@ -7,7 +7,7 @@ cd "$ROOT"
 VERSION="$(python3 - <<'PY'
 import json
 from pathlib import Path
-data = json.loads(Path("manifests/release.json").read_text(encoding="utf-8"))
+data = json.loads(Path("manifests/release.json").read_text(encoding="utf-8-sig"))
 print(data["version"])
 PY
 )"
