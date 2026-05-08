@@ -245,7 +245,7 @@
                                        Foreground="#111827"
                                        DockPanel.Dock="Left"/>
                             <TextBlock x:Name="ImageText"
-                                       Text="Image : algiadata/algia-cabinet:v0.1.4"
+                                       Text="Image : algiadata/algia-cabinet:v0.1.5"
                                        Foreground="#6B7280"
                                        HorizontalAlignment="Right"
                                        DockPanel.Dock="Right"/>
@@ -277,5 +277,6 @@
         </Border>
     </Grid>
 </Window>
+
 
 
