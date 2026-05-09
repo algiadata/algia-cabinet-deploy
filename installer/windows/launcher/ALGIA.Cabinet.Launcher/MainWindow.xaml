@@ -85,7 +85,7 @@
                                    Foreground="#93C5FD"
                                    FontSize="12"/>
                         <TextBlock x:Name="VersionText"
-                                   Text="v0.1.6"
+                                   Text="v0.1.7"
                                    Foreground="White"
                                    FontSize="24"
                                    FontWeight="Bold"/>
@@ -277,6 +277,7 @@
         </Border>
     </Grid>
 </Window>
+
 
 
 
