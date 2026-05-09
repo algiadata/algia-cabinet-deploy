@@ -65,19 +65,105 @@ function Load-OfflineImages {
     return $false
 }
 
-Write-Step "Verification Docker Desktop"
+function Get-DockerDesktopExe {
+    $paths = @(
+        "$env:ProgramFiles\Docker\Docker\Docker Desktop.exe",
+        "${env:ProgramFiles(x86)}\Docker\Docker\Docker Desktop.exe",
+        "$env:LOCALAPPDATA\Docker\Docker Desktop.exe"
+    )
 
-if (-not (Get-Command docker -ErrorAction SilentlyContinue)) {
-    Write-Host "Docker Desktop n'est pas installe." -ForegroundColor Red
-    Write-Host "Installe Docker Desktop puis relance l'installateur ALGIA Cabinet."
-    Start-Process "https://www.docker.com/products/docker-desktop/"
+    foreach ($p in $paths) {
+        if ($p -and (Test-Path $p)) {
+            return $p
+        }
+    }
+
+    return ""
+}
+
+function Test-DockerReady {
+    cmd.exe /c "docker info >NUL 2>NUL"
+    return ($LASTEXITCODE -eq 0)
+}
+
+function Start-DockerDesktopMinimized {
+    $exe = Get-DockerDesktopExe
+
+    if (-not $exe) {
+        return $false
+    }
+
+    Write-Host "Demarrage Docker Desktop en mode reduit..." -ForegroundColor Yellow
+    Start-Process -FilePath $exe -ArgumentList "--minimized" -WindowStyle Minimized
+    return $true
+}
+
+function Install-DockerDesktopIfMissing {
+    if (Get-Command docker -ErrorAction SilentlyContinue) {
+        return
+    }
+
+    Write-Step "Installation Docker Desktop"
+
+    $localInstallers = @()
+
+    if ($SourceDir -and (Test-Path $SourceDir)) {
+        $localInstallers += (Join-Path $SourceDir "third-party\Docker Desktop Installer.exe")
+        $localInstallers += (Join-Path $SourceDir "third-party\DockerDesktopInstaller.exe")
+    }
+
+    $localInstallers += (Join-Path $Root "third-party\Docker Desktop Installer.exe")
+    $localInstallers += (Join-Path $Root "third-party\DockerDesktopInstaller.exe")
+
+    foreach ($installer in $localInstallers) {
+        if (Test-Path $installer) {
+            Write-Host "Installateur Docker Desktop trouve : $installer" -ForegroundColor Yellow
+            Start-Process -FilePath $installer -ArgumentList "install --quiet" -Verb RunAs -Wait
+            $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+            return
+        }
+    }
+
+    if (Get-Command winget -ErrorAction SilentlyContinue) {
+        Write-Host "Installation Docker Desktop via winget..." -ForegroundColor Yellow
+        winget install --id Docker.DockerDesktop -e --accept-source-agreements --accept-package-agreements
+        $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+        return
+    }
+
+    Write-Host "Docker Desktop n'est pas installe et winget est introuvable." -ForegroundColor Red
+    Write-Host "Place Docker Desktop Installer.exe dans le dossier third-party puis relance l'installation." -ForegroundColor Yellow
     exit 1
 }
 
-cmd.exe /c "docker info >NUL 2>NUL"
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "Docker Desktop n'est pas lance." -ForegroundColor Red
-    Write-Host "Lance Docker Desktop puis relance l'installateur ALGIA Cabinet."
+function Wait-DockerReady {
+    param([int]$Seconds = 300)
+
+    $deadline = (Get-Date).AddSeconds($Seconds)
+
+    while ((Get-Date) -lt $deadline) {
+        if (Test-DockerReady) {
+            Write-Host "Docker Desktop est pret." -ForegroundColor Green
+            return $true
+        }
+
+        Start-Sleep -Seconds 5
+    }
+
+    return $false
+}
+
+Write-Step "Verification Docker Desktop"
+
+Install-DockerDesktopIfMissing
+
+if (-not (Test-DockerReady)) {
+    Start-DockerDesktopMinimized | Out-Null
+}
+
+if (-not (Wait-DockerReady -Seconds 300)) {
+    Write-Host "Docker Desktop n'est pas encore pret." -ForegroundColor Red
+    Write-Host "Si Docker Desktop vient d'etre installe, redemarre Windows puis relance ALGIA Cabinet." -ForegroundColor Yellow
     exit 1
 }
 
