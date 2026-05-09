@@ -12,3 +12,6 @@ third-party/
 
 # Windows temp
 *.pdb
+
+# Local environment
+.env
