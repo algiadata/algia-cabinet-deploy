@@ -43,6 +43,9 @@ Source: "..\..\..\docs\*"; DestDir: "{app}\docs"; Flags: ignoreversion recursesu
 Source: "..\..\..\installer\windows\scripts\*"; DestDir: "{app}\installer\windows\scripts"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\..\..\releases\wpf-launcher\*"; DestDir: "{app}\launcher"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\..\..\offline-images\*"; DestDir: "{app}\offline-images"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\..\..\third-party\Docker Desktop*.exe"; DestDir: "{app}\third-party"; Flags: ignoreversion skipifsourcedoesntexist
+Source: "..\..\..\third-party\DockerDesktop*.exe"; DestDir: "{app}\third-party"; Flags: ignoreversion skipifsourcedoesntexist
+Source: "..\..\..\third-party\Docker Desktop*.yaml"; DestDir: "{app}\third-party"; Flags: ignoreversion skipifsourcedoesntexist
 
 [Dirs]
 Name: "{app}\backups"
@@ -67,6 +70,7 @@ Name: "desktopicon"; Description: "Creer un raccourci ALGIA Cabinet sur le Burea
 
 [Run]
 Filename: "{app}\launcher\ALGIA-Cabinet-Launcher.exe"; Description: "Lancer ALGIA Cabinet Launcher"; Flags: postinstall nowait skipifsilent
+
 
 
 

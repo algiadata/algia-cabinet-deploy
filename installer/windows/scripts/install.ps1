@@ -105,21 +105,63 @@ function Install-DockerDesktopIfMissing {
 
     Write-Step "Installation Docker Desktop"
 
+    $DockerProgramDir = Join-Path $Root "docker-program"
+    $DockerDataDir = Join-Path $Root "docker-data"
+    $DockerWslDataDir = Join-Path $DockerDataDir "wsl"
+    $DockerHyperVDataDir = Join-Path $DockerDataDir "hyper-v"
+    $DockerWindowsContainersDataDir = Join-Path $DockerDataDir "windows-containers"
+
+    New-Item -ItemType Directory -Force -Path $DockerProgramDir | Out-Null
+    New-Item -ItemType Directory -Force -Path $DockerDataDir | Out-Null
+    New-Item -ItemType Directory -Force -Path $DockerWslDataDir | Out-Null
+    New-Item -ItemType Directory -Force -Path $DockerHyperVDataDir | Out-Null
+    New-Item -ItemType Directory -Force -Path $DockerWindowsContainersDataDir | Out-Null
+
+    Write-Host "Dossier Docker programme : $DockerProgramDir" -ForegroundColor Yellow
+    Write-Host "Dossier Docker donnees   : $DockerDataDir" -ForegroundColor Yellow
+
     $localInstallers = @()
 
     if ($SourceDir -and (Test-Path $SourceDir)) {
-        $localInstallers += (Join-Path $SourceDir "third-party\Docker Desktop Installer.exe")
-        $localInstallers += (Join-Path $SourceDir "third-party\DockerDesktopInstaller.exe")
+        $localInstallers += Get-ChildItem -Path (Join-Path $SourceDir "third-party") -File -Filter "Docker Desktop*.exe" -ErrorAction SilentlyContinue
+        $localInstallers += Get-ChildItem -Path (Join-Path $SourceDir "third-party") -File -Filter "DockerDesktop*.exe" -ErrorAction SilentlyContinue
     }
 
-    $localInstallers += (Join-Path $Root "third-party\Docker Desktop Installer.exe")
-    $localInstallers += (Join-Path $Root "third-party\DockerDesktopInstaller.exe")
+    $localInstallers += Get-ChildItem -Path (Join-Path $Root "third-party") -File -Filter "Docker Desktop*.exe" -ErrorAction SilentlyContinue
+    $localInstallers += Get-ChildItem -Path (Join-Path $Root "third-party") -File -Filter "DockerDesktop*.exe" -ErrorAction SilentlyContinue
+
+    $localInstallers = @($localInstallers | Where-Object { $_ -and (Test-Path $_.FullName) } | Select-Object -Unique)
 
     foreach ($installer in $localInstallers) {
-        if (Test-Path $installer) {
-            Write-Host "Installateur Docker Desktop trouve : $installer" -ForegroundColor Yellow
-            Start-Process -FilePath $installer -ArgumentList "install --quiet" -Verb RunAs -Wait
+        Write-Host "Installateur Docker Desktop trouve : $($installer.FullName)" -ForegroundColor Yellow
+
+        $advancedArgs = @(
+            "install",
+            "--quiet",
+            "--accept-license",
+            "--installation-dir", "`"$DockerProgramDir`"",
+            "--wsl-default-data-root", "`"$DockerWslDataDir`"",
+            "--hyper-v-default-data-root", "`"$DockerHyperVDataDir`"",
+            "--windows-containers-default-data-root", "`"$DockerWindowsContainersDataDir`""
+        ) -join " "
+
+        Write-Host "Tentative installation Docker avec dossier donnees personnalise..." -ForegroundColor Yellow
+        $p = Start-Process -FilePath $installer.FullName -ArgumentList $advancedArgs -Verb RunAs -Wait -PassThru
+
+        if ($p.ExitCode -eq 0) {
             $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+            Write-Host "Docker Desktop installe avec dossiers personnalises." -ForegroundColor Green
+            return
+        }
+
+        Write-Host "Installation avancee Docker echouee. Tentative installation standard..." -ForegroundColor Yellow
+        $fallbackArgs = "install --quiet --accept-license"
+        $p = Start-Process -FilePath $installer.FullName -ArgumentList $fallbackArgs -Verb RunAs -Wait -PassThru
+
+        if ($p.ExitCode -eq 0) {
+            $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+            Write-Host "Docker Desktop installe en mode standard." -ForegroundColor Green
+            Write-Host "Si les donnees Docker restent sur C:, configure Docker Desktop > Settings > Resources > Advanced > Disk image location vers : $DockerDataDir" -ForegroundColor Yellow
             return
         }
     }
@@ -128,10 +170,12 @@ function Install-DockerDesktopIfMissing {
         Write-Host "Installation Docker Desktop via winget..." -ForegroundColor Yellow
         winget install --id Docker.DockerDesktop -e --accept-source-agreements --accept-package-agreements
         $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+        Write-Host "Docker Desktop installe via winget." -ForegroundColor Green
+        Write-Host "Configure Docker Desktop > Settings > Resources > Advanced > Disk image location vers : $DockerDataDir" -ForegroundColor Yellow
         return
     }
 
-    Write-Host "Docker Desktop n'est pas installe et winget est introuvable." -ForegroundColor Red
+    Write-Host "Docker Desktop n'est pas installe et aucun installateur Docker local utilisable n'a ete trouve." -ForegroundColor Red
     Write-Host "Place Docker Desktop Installer.exe dans le dossier third-party puis relance l'installation." -ForegroundColor Yellow
     exit 1
 }
