@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
@@ -8,5 +8,16 @@
     <UseWindowsForms>true</UseWindowsForms>
     <AssemblyName>ALGIA-Cabinet-Launcher</AssemblyName>
     <RootNamespace>ALGIA.Cabinet.Launcher</RootNamespace>
-  </PropertyGroup>
+      <ApplicationIcon>..\..\assets\algia-cabinet-desktop.ico</ApplicationIcon>
+</PropertyGroup>
+  <ItemGroup>
+    <Content Include="..\..\assets\algia-cabinet-desktop.ico">
+      <Link>algia-cabinet-desktop.ico</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\..\assets\algia-cabinet-desktop.png">
+      <Link>algia-cabinet-desktop.png</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 </Project>

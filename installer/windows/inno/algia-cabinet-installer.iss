@@ -1,4 +1,4 @@
-﻿#define MyAppName "ALGIA Cabinet"
+#define MyAppName "ALGIA Cabinet"
 #define MyAppVersion "0.1.8"
 #define MyAppPublisher "ALGIA Data"
 #define MyAppExeName "ALGIA-Cabinet-Setup-v0.1.8"
@@ -20,7 +20,8 @@ PrivilegesRequired=lowest
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 UninstallDisplayName={#MyAppName}
-UninstallDisplayIcon={app}\INSTALLER-ALGIA-CABINET.bat
+UninstallDisplayIcon={app}\assets\algia-cabinet-desktop.ico
+SetupIconFile=..\assets\algia-cabinet-installer.ico
 
 [Languages]
 Name: "french"; MessagesFile: "compiler:Languages\French.isl"
@@ -41,6 +42,7 @@ Source: "..\..\..\bootstrap\*"; DestDir: "{app}\bootstrap"; Flags: ignoreversion
 Source: "..\..\..\manifests\*"; DestDir: "{app}\manifests"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\..\..\docs\*"; DestDir: "{app}\docs"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\..\..\installer\windows\scripts\*"; DestDir: "{app}\installer\windows\scripts"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\..\..\installer\windows\assets\*"; DestDir: "{app}\assets"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\..\..\releases\wpf-launcher\*"; DestDir: "{app}\launcher"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\..\..\offline-images\*"; DestDir: "{app}\offline-images"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\..\..\third-party\Docker Desktop*.exe"; DestDir: "{app}\third-party"; Flags: ignoreversion skipifsourcedoesntexist
@@ -54,7 +56,7 @@ Name: "{app}\state"
 Name: "{app}\releases"
 
 [Icons]
-Name: "{group}\ALGIA Cabinet"; Filename: "{app}\launcher\ALGIA-Cabinet-Launcher.exe"; WorkingDir: "{app}"
+Name: "{group}\ALGIA Cabinet"; Filename: "{app}\launcher\ALGIA-Cabinet-Launcher.exe"; WorkingDir: "{app}"; IconFilename: "{app}\assets\algia-cabinet-desktop.ico"
 Name: "{group}\Ouvrir ALGIA Cabinet Web"; Filename: "http://localhost:8080"
 Name: "{group}\Installer ALGIA Cabinet"; Filename: "{app}\INSTALLER-ALGIA-CABINET.bat"; WorkingDir: "{app}"
 Name: "{group}\Demarrer ALGIA Cabinet"; Filename: "{app}\DEMARRER-ALGIA-CABINET.bat"; WorkingDir: "{app}"
@@ -63,10 +65,8 @@ Name: "{group}\Sauvegarder ALGIA Cabinet"; Filename: "{app}\SAUVEGARDE-ALGIA-CAB
 Name: "{group}\Mettre a jour ALGIA Cabinet"; Filename: "{app}\METTRE-A-JOUR-ALGIA-CABINET.bat"; WorkingDir: "{app}"
 Name: "{group}\Restaurer ALGIA Cabinet"; Filename: "{app}\RESTAURER-ALGIA-CABINET.bat"; WorkingDir: "{app}"
 
-Name: "{userdesktop}\ALGIA Cabinet"; Filename: "{app}\launcher\ALGIA-Cabinet-Launcher.exe"; WorkingDir: "{app}"; Tasks: desktopicon
+Name: "{userdesktop}\ALGIA Cabinet"; Filename: "{app}\launcher\ALGIA-Cabinet-Launcher.exe"; WorkingDir: "{app}"; IconFilename: "{app}\assets\algia-cabinet-desktop.ico"; IconFilename: "{app}\assets\algia-cabinet-desktop.ico"
 
-[Tasks]
-Name: "desktopicon"; Description: "Creer un raccourci ALGIA Cabinet sur le Bureau"; GroupDescription: "Raccourcis :"; Flags: unchecked
 
 [Run]
 Filename: "{app}\launcher\ALGIA-Cabinet-Launcher.exe"; Description: "Lancer ALGIA Cabinet Launcher"; Flags: postinstall nowait skipifsilent
