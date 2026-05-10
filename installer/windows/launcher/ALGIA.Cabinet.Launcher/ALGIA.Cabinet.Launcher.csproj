@@ -12,13 +12,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="..\..\assets\algia-cabinet-desktop.ico">
+    <Resource Include="..\..\assets\algia-cabinet-desktop.ico">
       <Link>algia-cabinet-desktop.ico</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\..\assets\algia-cabinet-desktop.png">
+    </Resource>
+    <Resource Include="..\..\assets\algia-cabinet-desktop.png">
       <Link>algia-cabinet-desktop.png</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    </Resource>
   </ItemGroup>
 </Project>
