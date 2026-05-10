@@ -8,15 +8,5 @@
     <UseWindowsForms>true</UseWindowsForms>
     <AssemblyName>ALGIA-Cabinet-Launcher</AssemblyName>
     <RootNamespace>ALGIA.Cabinet.Launcher</RootNamespace>
-    <ApplicationIcon>..\..\assets\algia-cabinet-desktop.ico</ApplicationIcon>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Resource Include="..\..\assets\algia-cabinet-desktop.ico">
-      <Link>algia-cabinet-desktop.ico</Link>
-    </Resource>
-    <Resource Include="..\..\assets\algia-cabinet-desktop.png">
-      <Link>algia-cabinet-desktop.png</Link>
-    </Resource>
-  </ItemGroup>
 </Project>
