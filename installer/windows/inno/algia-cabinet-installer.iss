@@ -1,4 +1,4 @@
-﻿#define MyAppName "ALGIA Cabinet"
+#define MyAppName "ALGIA Cabinet"
 #define MyAppVersion "0.1.8"
 #define MyAppPublisher "ALGIA Data"
 #define MyAppExeName "ALGIA-Cabinet-Setup-v0.1.8"
@@ -43,6 +43,7 @@ Source: "..\..\..\manifests\*"; DestDir: "{app}\manifests"; Flags: ignoreversion
 Source: "..\..\..\docs\*"; DestDir: "{app}\docs"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\..\..\installer\windows\scripts\*"; DestDir: "{app}\installer\windows\scripts"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\..\..\installer\windows\assets\*"; DestDir: "{app}\assets"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\..\..\installer\windows\assets\*"; DestDir: "{app}\launcher"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\..\..\releases\wpf-launcher\*"; DestDir: "{app}\launcher"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\..\..\offline-images\*"; DestDir: "{app}\offline-images"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\..\..\third-party\Docker Desktop*.exe"; DestDir: "{app}\third-party"; Flags: ignoreversion skipifsourcedoesntexist
