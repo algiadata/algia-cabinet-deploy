@@ -7,6 +7,8 @@ $ErrorActionPreference = "Stop"
 $Root = Resolve-Path "$PSScriptRoot\..\..\.."
 Set-Location $Root
 
+$script:DockerDesktopInstalledNow = $false
+
 function Write-Step($Message) {
     Write-Host ""
     Write-Host "=== $Message ===" -ForegroundColor Cyan
@@ -98,6 +100,74 @@ function Start-DockerDesktopMinimized {
     return $true
 }
 
+
+function Get-LauncherExeForResume {
+    $candidates = @()
+
+    if ($SourceDir -and (Test-Path $SourceDir)) {
+        $candidates += (Join-Path $SourceDir "launcher\ALGIA-Cabinet-Launcher.exe")
+    }
+
+    $candidates += (Join-Path $Root "launcher\ALGIA-Cabinet-Launcher.exe")
+
+    foreach ($candidate in $candidates) {
+        if ($candidate -and (Test-Path $candidate)) {
+            return $candidate
+        }
+    }
+
+    return ""
+}
+
+function Register-LauncherResumeAfterReboot {
+    $launcher = Get-LauncherExeForResume
+
+    if (-not $launcher) {
+        Write-Host "Launcher introuvable pour reprise automatique apres redemarrage." -ForegroundColor Yellow
+        return
+    }
+
+    $runOncePath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\RunOnce"
+    New-Item -Path $runOncePath -Force | Out-Null
+    New-ItemProperty `
+        -Path $runOncePath `
+        -Name "ALGIA Cabinet - Reprise installation" `
+        -Value "`"$launcher`"" `
+        -PropertyType String `
+        -Force | Out-Null
+
+    Write-Host "Reprise automatique programmee apres redemarrage : $launcher" -ForegroundColor Green
+}
+
+function Request-DockerRebootAndExit {
+    Write-Step "Redemarrage requis"
+
+    Register-LauncherResumeAfterReboot
+
+    Write-Host "Docker Desktop vient d'etre installe avec succes." -ForegroundColor Green
+    Write-Host "Windows doit redemarrer pour activer Docker/WSL correctement." -ForegroundColor Yellow
+    Write-Host "Apres redemarrage, ALGIA Cabinet Launcher se relancera automatiquement." -ForegroundColor Yellow
+
+    try {
+        Add-Type -AssemblyName PresentationFramework -ErrorAction SilentlyContinue
+        $result = [System.Windows.MessageBox]::Show(
+            "Docker Desktop a ete installe avec succes.`n`nWindows doit redemarrer pour activer Docker correctement.`n`nALGIA Cabinet Launcher se relancera automatiquement apres le redemarrage.`n`nRedemarrer maintenant ?",
+            "ALGIA Cabinet - Redemarrage requis",
+            "YesNo",
+            "Information"
+        )
+
+        if ($result -eq "Yes") {
+            Start-Process "shutdown.exe" -ArgumentList '/r /t 10 /c "ALGIA Cabinet : reprise automatique apres redemarrage."'
+        }
+    } catch {
+        Write-Host "Message graphique indisponible. Redemarre Windows manuellement." -ForegroundColor Yellow
+    }
+
+    exit 0
+}
+
+
 function Install-DockerDesktopIfMissing {
     if (Get-Command docker -ErrorAction SilentlyContinue) {
         $existingDocker = Get-DockerDesktopExe
@@ -168,6 +238,7 @@ function Install-DockerDesktopIfMissing {
 
         if ($p.ExitCode -eq 0) {
             $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+            $script:DockerDesktopInstalledNow = $true
             Write-Host "Docker Desktop installe avec dossiers personnalises." -ForegroundColor Green
             return
         }
@@ -216,8 +287,12 @@ if (-not (Test-DockerReady)) {
 }
 
 if (-not (Wait-DockerReady -Seconds 300)) {
+    if ($script:DockerDesktopInstalledNow) {
+        Request-DockerRebootAndExit
+    }
+
     Write-Host "Docker Desktop n'est pas encore pret." -ForegroundColor Red
-    Write-Host "Si Docker Desktop vient d'etre installe, redemarre Windows puis relance ALGIA Cabinet." -ForegroundColor Yellow
+    Write-Host "Ouvre Docker Desktop, attends qu'il soit pret, puis relance l'installation." -ForegroundColor Yellow
     exit 1
 }
 
