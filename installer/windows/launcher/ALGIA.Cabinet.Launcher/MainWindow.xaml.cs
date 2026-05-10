@@ -1,9 +1,10 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media.Imaging;
 using Forms = System.Windows.Forms;
 
 namespace ALGIA.Cabinet.Launcher
@@ -28,6 +29,8 @@ namespace ALGIA.Cabinet.Launcher
         {
             InitializeComponent();
 
+            LoadHeaderLogoSafe();
+
             PackageDir = FindPackageDirectory();
             RootDir = PackageDir;
 
@@ -35,6 +38,42 @@ namespace ALGIA.Cabinet.Launcher
             AppendLog("ALGIA Cabinet Launcher initialisé.");
             AppendLog("Package : " + PackageDir);
             AppendLog("Dossier d’installation : " + RootDir);
+        }
+
+        private void LoadHeaderLogoSafe()
+        {
+            try
+            {
+                var baseDir = AppContext.BaseDirectory;
+
+                var candidates = new[]
+                {
+                    Path.Combine(baseDir, "algia-cabinet-desktop.png"),
+                    Path.Combine(baseDir, "assets", "algia-cabinet-desktop.png"),
+                    Path.Combine(Directory.GetCurrentDirectory(), "assets", "algia-cabinet-desktop.png"),
+                    Path.Combine(Directory.GetCurrentDirectory(), "installer", "windows", "assets", "algia-cabinet-desktop.png")
+                };
+
+                foreach (var path in candidates)
+                {
+                    if (!File.Exists(path))
+                        continue;
+
+                    var bitmap = new BitmapImage();
+                    bitmap.BeginInit();
+                    bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                    bitmap.UriSource = new Uri(path, UriKind.Absolute);
+                    bitmap.EndInit();
+                    bitmap.Freeze();
+
+                    HeaderLogoImage.Source = bitmap;
+                    return;
+                }
+            }
+            catch
+            {
+                // Ne jamais bloquer le launcher pour un logo.
+            }
         }
 
         private string FindPackageDirectory()
