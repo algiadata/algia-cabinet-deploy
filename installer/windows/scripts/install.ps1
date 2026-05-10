@@ -69,6 +69,8 @@ function Load-OfflineImages {
 
 function Get-DockerDesktopExe {
     $paths = @(
+        (Join-Path $Root "docker-program\Docker Desktop.exe"),
+        (Join-Path $Root "docker-program\Docker\Docker Desktop.exe"),
         "$env:ProgramFiles\Docker\Docker\Docker Desktop.exe",
         "${env:ProgramFiles(x86)}\Docker\Docker\Docker Desktop.exe",
         "$env:LOCALAPPDATA\Docker\Docker Desktop.exe"
@@ -77,6 +79,17 @@ function Get-DockerDesktopExe {
     foreach ($p in $paths) {
         if ($p -and (Test-Path $p)) {
             return $p
+        }
+    }
+
+    $customRoot = Join-Path $Root "docker-program"
+
+    if (Test-Path $customRoot) {
+        $found = Get-ChildItem -Path $customRoot -Recurse -File -Filter "Docker Desktop.exe" -ErrorAction SilentlyContinue |
+            Select-Object -ExpandProperty FullName -First 1
+
+        if ($found) {
+            return $found
         }
     }
 
@@ -98,6 +111,94 @@ function Start-DockerDesktopMinimized {
     Write-Host "Demarrage Docker Desktop en mode reduit..." -ForegroundColor Yellow
     Start-Process -FilePath $exe -ArgumentList "--minimized" -WindowStyle Minimized
     return $true
+}
+
+
+
+function Convert-ToPowerShellSingleQuotedString {
+    param([string]$Value)
+
+    return "'" + ($Value -replace "'", "''") + "'"
+}
+
+function Repair-DockerDesktopUninstallEntry {
+    param([string]$DockerProgramDir)
+
+    if (-not $DockerProgramDir) {
+        return
+    }
+
+    $PermanentUninstallerDir = Join-Path $Root "docker-uninstaller"
+    $PermanentUninstaller = Join-Path $PermanentUninstallerDir "Docker Desktop Installer.exe"
+
+    New-Item -ItemType Directory -Force -Path $PermanentUninstallerDir | Out-Null
+    New-Item -ItemType Directory -Force -Path (Join-Path $Root "state") | Out-Null
+
+    $candidates = @()
+    $candidates += Join-Path $DockerProgramDir "Docker Desktop Installer.exe"
+
+    if ($SourceDir -and (Test-Path $SourceDir)) {
+        $candidates += Get-ChildItem -Path (Join-Path $SourceDir "third-party") -File -Filter "Docker Desktop*.exe" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName
+        $candidates += Get-ChildItem -Path (Join-Path $SourceDir "third-party") -File -Filter "DockerDesktop*.exe" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName
+    }
+
+    $candidates += Get-ChildItem -Path (Join-Path $Root "third-party") -File -Filter "Docker Desktop*.exe" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName
+    $candidates += Get-ChildItem -Path (Join-Path $Root "third-party") -File -Filter "DockerDesktop*.exe" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName
+
+    $installer = $candidates | Where-Object { $_ -and (Test-Path $_) } | Select-Object -First 1
+
+    if (-not $installer) {
+        Write-Host "Installateur Docker Desktop introuvable pour reparer la desinstallation Windows." -ForegroundColor Yellow
+        return
+    }
+
+    Copy-Item $installer $PermanentUninstaller -Force
+
+    $repairScript = Join-Path $Root "state\repair-docker-uninstall.ps1"
+    $permanentUninstallerLiteral = Convert-ToPowerShellSingleQuotedString $PermanentUninstaller
+    $dockerProgramDirLiteral = Convert-ToPowerShellSingleQuotedString $DockerProgramDir
+
+    $repairContent = @"
+`$PermanentUninstaller = $permanentUninstallerLiteral
+`$DockerProgramDir = $dockerProgramDirLiteral
+
+`$RegistryRoots = @(
+    "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall",
+    "HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall",
+    "HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall"
+)
+
+foreach (`$RegistryRoot in `$RegistryRoots) {
+    if (-not (Test-Path `$RegistryRoot)) {
+        continue
+    }
+
+    Get-ChildItem `$RegistryRoot -ErrorAction SilentlyContinue | ForEach-Object {
+        `$Key = `$_.PSPath
+        `$Props = Get-ItemProperty `$Key -ErrorAction SilentlyContinue
+
+        if (`$Props.DisplayName -like "Docker Desktop*") {
+            Set-ItemProperty -Path `$Key -Name "UninstallString" -Value "`"`$PermanentUninstaller`" uninstall" -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path `$Key -Name "QuietUninstallString" -Value "`"`$PermanentUninstaller`" uninstall --quiet" -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path `$Key -Name "InstallLocation" -Value `$DockerProgramDir -ErrorAction SilentlyContinue
+        }
+    }
+}
+"@
+
+    Set-Content -Path $repairScript -Value $repairContent -Encoding UTF8
+
+    Write-Host "Reparation entree Windows de desinstallation Docker..." -ForegroundColor Yellow
+
+    $args = '-NoProfile -ExecutionPolicy Bypass -File "' + $repairScript + '"'
+    $p = Start-Process -FilePath "powershell.exe" -ArgumentList $args -Verb RunAs -Wait -PassThru
+
+    if ($p.ExitCode -eq 0) {
+        Write-Host "Entree Windows de desinstallation Docker reparee." -ForegroundColor Green
+        Write-Host "UninstallString Docker => `"$PermanentUninstaller`" uninstall" -ForegroundColor Yellow
+    } else {
+        Write-Host "Reparation de la desinstallation Docker non confirmee." -ForegroundColor Yellow
+    }
 }
 
 
@@ -183,6 +284,12 @@ function Install-DockerDesktopIfMissing {
                 Write-Host "L'installateur ne peut pas deplacer automatiquement un Docker Desktop deja installe." -ForegroundColor Yellow
                 Write-Host "Pour mettre Docker sur $rootDrive, desinstalle Docker Desktop puis relance l'installation ALGIA Cabinet." -ForegroundColor Yellow
             }
+
+            $expectedDockerProgramDir = Join-Path $Root "docker-program"
+
+            if (Test-Path $expectedDockerProgramDir) {
+                Repair-DockerDesktopUninstallEntry -DockerProgramDir $expectedDockerProgramDir
+            }
         }
 
         return
@@ -240,6 +347,7 @@ function Install-DockerDesktopIfMissing {
             $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
             $script:DockerDesktopInstalledNow = $true
             Write-Host "Docker Desktop installe avec dossiers personnalises." -ForegroundColor Green
+            Repair-DockerDesktopUninstallEntry -DockerProgramDir $DockerProgramDir
             return
         }
 
