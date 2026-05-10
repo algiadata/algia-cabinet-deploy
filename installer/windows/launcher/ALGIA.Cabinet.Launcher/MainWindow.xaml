@@ -130,17 +130,35 @@
                                    Foreground="#111827"
                                    Margin="0,0,0,14"/>
 
-                        <Button Content="Vérifier la machine" Click="CheckMachine_Click"/>
-                        <Button Content="Choisir le dossier" Click="ChooseFolder_Click" Style="{StaticResource LightButton}"/>
-                        <Button Content="Installer ALGIA Cabinet" Click="Install_Click"/>
-                        <Button Content="Démarrer" Click="Start_Click" Style="{StaticResource SecondaryButton}"/>
-                        <Button Content="Arrêter" Click="Stop_Click" Background="#DC2626" Foreground="White"/>
-                        <Button Content="Sauvegarder" Click="Backup_Click"/>
-                        <Button Content="Restaurer" Click="Restore_Click"/>
-                        <Button Content="Mettre à jour" Click="Update_Click"/>
-                        <Button Content="Ouvrir ALGIA Cabinet" Click="OpenApp_Click" Style="{StaticResource LightButton}"/>
-                        <Button Content="Administration" Click="Admin_Click" Style="{StaticResource LightButton}"/>
-                        <Button Content="Voir les journaux" Click="Logs_Click" Style="{StaticResource LightButton}"/>
+                        <Button Content="Installer / Lancer ALGIA Cabinet"
+                                Click="InstallOrStart_Click"
+                                Height="58"
+                                FontSize="16"
+                                Background="#16A34A"
+                                Foreground="White"/>
+
+                        <Button Content="Choisir le dossier"
+                                Click="ChooseFolder_Click"
+                                Style="{StaticResource LightButton}"/>
+
+                        <Button Content="Ouvrir ALGIA Cabinet"
+                                Click="OpenApp_Click"
+                                Style="{StaticResource LightButton}"/>
+
+                        <Button Content="Arrêter"
+                                Click="Stop_Click"
+                                Background="#DC2626"
+                                Foreground="White"/>
+
+                        <Button Content="Sauvegarder"
+                                Click="Backup_Click"/>
+
+                        <Button Content="Restaurer"
+                                Click="Restore_Click"/>
+
+                        <Button Content="Voir les journaux"
+                                Click="Logs_Click"
+                                Style="{StaticResource LightButton}"/>
                     </StackPanel>
 
                     <StackPanel DockPanel.Dock="Bottom" VerticalAlignment="Bottom">

@@ -502,6 +502,28 @@ namespace ALGIA.Cabinet.Launcher
             return null;
         }
 
+        private bool IsInstalled()
+        {
+            return File.Exists(Path.Combine(RootDir, ".env")) &&
+                   File.Exists(Path.Combine(RootDir, "docker-compose.yml"));
+        }
+
+        private async void InstallOrStart_Click(object sender, RoutedEventArgs e)
+        {
+            if (IsInstalled())
+            {
+                AppendLog("Installation détectée. Démarrage ALGIA Cabinet...");
+                await RunPowerShellScriptInlineAsync(@"installer\windows\scripts\start.ps1");
+                return;
+            }
+
+            AppendLog("Première installation détectée. Installation puis lancement ALGIA Cabinet...");
+            await RunPowerShellScriptInlineAsync(
+                @"installer\windows\scripts\install.ps1",
+                "-SourceDir " + QuoteArg(PackageDir)
+            );
+        }
+
         private async void Install_Click(object sender, RoutedEventArgs e)
         {
             await RunPowerShellScriptInlineAsync(
