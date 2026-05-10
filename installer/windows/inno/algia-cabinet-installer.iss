@@ -79,3 +79,4 @@ Filename: "{app}\launcher\ALGIA-Cabinet-Launcher.exe"; Description: "Lancer ALGI
 
 
 
+
