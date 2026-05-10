@@ -101,6 +101,47 @@ function Test-DockerReady {
     return ($LASTEXITCODE -eq 0)
 }
 
+function Invoke-DockerDesktopWindowHider {
+    New-Item -ItemType Directory -Force -Path (Join-Path $Root "state") | Out-Null
+
+    $scriptPath = Join-Path $Root "state\hide-docker-desktop-windows.ps1"
+
+    $contentLines = @(
+        'Add-Type @"',
+        'using System;',
+        'using System.Runtime.InteropServices;',
+        '',
+        'public class Win32WindowTools {',
+        '    [DllImport("user32.dll")]',
+        '    public static extern bool ShowWindowAsync(IntPtr hWnd, int nCmdShow);',
+        '}',
+        '"@',
+        '',
+        '$deadline = (Get-Date).AddSeconds(240)',
+        '',
+        'while ((Get-Date) -lt $deadline) {',
+        '    Get-Process -ErrorAction SilentlyContinue | Where-Object {',
+        '        $_.ProcessName -like "Docker Desktop*" -or $_.MainWindowTitle -like "*Docker Desktop*"',
+        '    } | ForEach-Object {',
+        '        try {',
+        '            if ($_.MainWindowHandle -ne [IntPtr]::Zero) {',
+        '                [Win32WindowTools]::ShowWindowAsync($_.MainWindowHandle, 0) | Out-Null',
+        '            }',
+        '        } catch {}',
+        '    }',
+        '',
+        '    Start-Sleep -Seconds 2',
+        '}'
+    )
+
+    Set-Content -Path $scriptPath -Value $contentLines -Encoding UTF8
+
+    Start-Process `
+        -FilePath "powershell.exe" `
+        -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$scriptPath`"" `
+        -WindowStyle Hidden
+}
+
 function Start-DockerDesktopMinimized {
     $exe = Get-DockerDesktopExe
 
@@ -108,8 +149,16 @@ function Start-DockerDesktopMinimized {
         return $false
     }
 
-    Write-Host "Demarrage Docker Desktop en mode reduit..." -ForegroundColor Yellow
-    Start-Process -FilePath $exe -ArgumentList "--minimized" -WindowStyle Minimized
+    Write-Host "Demarrage Docker Desktop en mode discret / systray..." -ForegroundColor Yellow
+
+    try {
+        Start-Process -FilePath $exe -ArgumentList @("--minimized", "--unattended") -WindowStyle Minimized
+    } catch {
+        Start-Process -FilePath $exe -ArgumentList "--minimized" -WindowStyle Minimized
+    }
+
+    Invoke-DockerDesktopWindowHider
+
     return $true
 }
 
