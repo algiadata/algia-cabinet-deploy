@@ -100,6 +100,21 @@ function Start-DockerDesktopMinimized {
 
 function Install-DockerDesktopIfMissing {
     if (Get-Command docker -ErrorAction SilentlyContinue) {
+        $existingDocker = Get-DockerDesktopExe
+
+        if ($existingDocker) {
+            Write-Host "Docker Desktop deja installe : $existingDocker" -ForegroundColor Yellow
+
+            $rootDrive = ([System.IO.Path]::GetPathRoot($Root)).TrimEnd("\")
+            $dockerDrive = ([System.IO.Path]::GetPathRoot($existingDocker)).TrimEnd("\")
+
+            if ($rootDrive -ne $dockerDrive) {
+                Write-Host "ATTENTION : Docker Desktop est deja installe sur $dockerDrive alors que ALGIA Cabinet est dans $rootDrive." -ForegroundColor Yellow
+                Write-Host "L'installateur ne peut pas deplacer automatiquement un Docker Desktop deja installe." -ForegroundColor Yellow
+                Write-Host "Pour mettre Docker sur $rootDrive, desinstalle Docker Desktop puis relance l'installation ALGIA Cabinet." -ForegroundColor Yellow
+            }
+        }
+
         return
     }
 
@@ -139,13 +154,16 @@ function Install-DockerDesktopIfMissing {
             "install",
             "--quiet",
             "--accept-license",
-            "--installation-dir", "`"$DockerProgramDir`"",
-            "--wsl-default-data-root", "`"$DockerWslDataDir`"",
-            "--hyper-v-default-data-root", "`"$DockerHyperVDataDir`"",
-            "--windows-containers-default-data-root", "`"$DockerWindowsContainersDataDir`""
-        ) -join " "
+            "--installation-dir=`"$DockerProgramDir`"",
+            "--wsl-default-data-root=`"$DockerWslDataDir`"",
+            "--hyper-v-default-data-root=`"$DockerHyperVDataDir`"",
+            "--windows-containers-default-data-root=`"$DockerWindowsContainersDataDir`""
+        )
 
-        Write-Host "Tentative installation Docker avec dossier donnees personnalise..." -ForegroundColor Yellow
+        Write-Host "Tentative installation Docker avec dossiers personnalises..." -ForegroundColor Yellow
+        Write-Host "Programme Docker : $DockerProgramDir" -ForegroundColor Yellow
+        Write-Host "Donnees Docker   : $DockerDataDir" -ForegroundColor Yellow
+
         $p = Start-Process -FilePath $installer.FullName -ArgumentList $advancedArgs -Verb RunAs -Wait -PassThru
 
         if ($p.ExitCode -eq 0) {
@@ -154,25 +172,17 @@ function Install-DockerDesktopIfMissing {
             return
         }
 
-        Write-Host "Installation avancee Docker echouee. Tentative installation standard..." -ForegroundColor Yellow
-        $fallbackArgs = "install --quiet --accept-license"
-        $p = Start-Process -FilePath $installer.FullName -ArgumentList $fallbackArgs -Verb RunAs -Wait -PassThru
-
-        if ($p.ExitCode -eq 0) {
-            $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
-            Write-Host "Docker Desktop installe en mode standard." -ForegroundColor Green
-            Write-Host "Si les donnees Docker restent sur C:, configure Docker Desktop > Settings > Resources > Advanced > Disk image location vers : $DockerDataDir" -ForegroundColor Yellow
-            return
-        }
+        Write-Host "Installation Docker personnalisee echouee." -ForegroundColor Red
+        Write-Host "Installation standard bloquee pour eviter une installation Docker sur C:." -ForegroundColor Yellow
+        Write-Host "Verifie l'installateur Docker Desktop local dans third-party, puis relance." -ForegroundColor Yellow
+        exit 1
     }
 
     if (Get-Command winget -ErrorAction SilentlyContinue) {
-        Write-Host "Installation Docker Desktop via winget..." -ForegroundColor Yellow
-        winget install --id Docker.DockerDesktop -e --accept-source-agreements --accept-package-agreements
-        $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
-        Write-Host "Docker Desktop installe via winget." -ForegroundColor Green
-        Write-Host "Configure Docker Desktop > Settings > Resources > Advanced > Disk image location vers : $DockerDataDir" -ForegroundColor Yellow
-        return
+        Write-Host "Winget detecte, mais installation Docker via winget bloquee." -ForegroundColor Yellow
+        Write-Host "Raison : winget installe Docker Desktop sur C: par defaut." -ForegroundColor Yellow
+        Write-Host "Place Docker Desktop Installer.exe dans third-party puis relance l'installation." -ForegroundColor Yellow
+        exit 1
     }
 
     Write-Host "Docker Desktop n'est pas installe et aucun installateur Docker local utilisable n'a ete trouve." -ForegroundColor Red
