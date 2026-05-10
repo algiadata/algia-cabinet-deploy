@@ -1,4 +1,4 @@
-#define MyAppName "ALGIA Cabinet"
+﻿#define MyAppName "ALGIA Cabinet"
 #define MyAppVersion "0.1.8"
 #define MyAppPublisher "ALGIA Data"
 #define MyAppExeName "ALGIA-Cabinet-Setup-v0.1.8"
@@ -65,11 +65,12 @@ Name: "{group}\Sauvegarder ALGIA Cabinet"; Filename: "{app}\SAUVEGARDE-ALGIA-CAB
 Name: "{group}\Mettre a jour ALGIA Cabinet"; Filename: "{app}\METTRE-A-JOUR-ALGIA-CABINET.bat"; WorkingDir: "{app}"
 Name: "{group}\Restaurer ALGIA Cabinet"; Filename: "{app}\RESTAURER-ALGIA-CABINET.bat"; WorkingDir: "{app}"
 
-Name: "{userdesktop}\ALGIA Cabinet"; Filename: "{app}\launcher\ALGIA-Cabinet-Launcher.exe"; WorkingDir: "{app}"; IconFilename: "{app}\assets\algia-cabinet-desktop.ico"; IconFilename: "{app}\assets\algia-cabinet-desktop.ico"
+Name: "{userdesktop}\ALGIA Cabinet"; Filename: "{app}\launcher\ALGIA-Cabinet-Launcher.exe"; WorkingDir: "{app}"; IconFilename: "{app}\assets\algia-cabinet-desktop.ico"
 
 
 [Run]
 Filename: "{app}\launcher\ALGIA-Cabinet-Launcher.exe"; Description: "Lancer ALGIA Cabinet Launcher"; Flags: postinstall nowait skipifsilent
+
 
 
 
