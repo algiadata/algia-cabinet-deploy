@@ -32,7 +32,7 @@ namespace ALGIA.Cabinet.Launcher
             LoadHeaderLogoSafe();
 
             PackageDir = FindPackageDirectory();
-            RootDir = PackageDir;
+            RootDir = LoadSavedRootDir();
 
             RefreshInstallDisplay();
             AppendLog("ALGIA Cabinet Launcher initialisé.");
@@ -73,6 +73,55 @@ namespace ALGIA.Cabinet.Launcher
             catch
             {
                 // Ne jamais bloquer le launcher pour un logo.
+            }
+        }
+
+        private string StateDirectory()
+        {
+            var dir = Path.Combine(PackageDir, "state");
+            Directory.CreateDirectory(dir);
+            return dir;
+        }
+
+        private string SavedRootPathFile()
+        {
+            return Path.Combine(StateDirectory(), "install-root.txt");
+        }
+
+        private string LoadSavedRootDir()
+        {
+            try
+            {
+                var file = SavedRootPathFile();
+
+                if (File.Exists(file))
+                {
+                    var saved = File.ReadAllText(file).Trim();
+
+                    if (!string.IsNullOrWhiteSpace(saved) && Directory.Exists(saved))
+                    {
+                        return saved;
+                    }
+                }
+            }
+            catch
+            {
+                // Ne jamais bloquer le launcher pour une préférence locale.
+            }
+
+            return PackageDir;
+        }
+
+        private void SaveRootDirPreference()
+        {
+            try
+            {
+                File.WriteAllText(SavedRootPathFile(), RootDir);
+                AppendLog("Dossier mémorisé : " + RootDir);
+            }
+            catch (Exception ex)
+            {
+                AppendLog("Impossible de mémoriser le dossier : " + ex.Message);
             }
         }
 
@@ -238,6 +287,7 @@ namespace ALGIA.Cabinet.Launcher
             Directory.CreateDirectory(Path.Combine(RootDir, "state"));
             Directory.CreateDirectory(Path.Combine(RootDir, "releases"));
 
+            SaveRootDirPreference();
             RefreshInstallDisplay();
         }
 
@@ -361,6 +411,7 @@ namespace ALGIA.Cabinet.Launcher
             if (dialog.ShowDialog() == Forms.DialogResult.OK)
             {
                 RootDir = dialog.SelectedPath;
+                SaveRootDirPreference();
                 RefreshInstallDisplay();
                 AppendLog("Dossier d’installation sélectionné : " + RootDir);
 
