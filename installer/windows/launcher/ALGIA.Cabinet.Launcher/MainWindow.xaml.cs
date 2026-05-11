@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -561,16 +561,9 @@ namespace ALGIA.Cabinet.Launcher
 
         private async void InstallOrStart_Click(object sender, RoutedEventArgs e)
         {
-            if (IsInstalled())
-            {
-                AppendLog("Installation dÃ©tectÃ©e. DÃ©marrage ALGIA Cabinet...");
-                await RunPowerShellScriptInlineAsync(@"installer\windows\scripts\start.ps1");
-                return;
-            }
-
-            AppendLog("PremiÃ¨re installation dÃ©tectÃ©e. Installation puis lancement ALGIA Cabinet...");
+            AppendLog("Action unique : installer ou lancer ALGIA Cabinet...");
             await RunPowerShellScriptInlineAsync(
-                @"installer\windows\scripts\install.ps1",
+                @"installer\windows\scripts\run.ps1",
                 "-SourceDir " + QuoteArg(PackageDir)
             );
         }
