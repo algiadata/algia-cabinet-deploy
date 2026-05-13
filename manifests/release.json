@@ -1,7 +1,7 @@
 {
   "product": "ALGIA Cabinet",
-  "version": "v0.1.8",
-  "image": "algiadata/algia-cabinet:v0.1.8",
+  "version": "v0.1.9",
+  "image": "algiadata/algia-cabinet:v0.1.9",
   "site_name": "cabinet.local",
   "default_http_port": 8080,
   "timezone": "Africa/Algiers",
@@ -9,5 +9,5 @@
     "algia_cabinet"
   ],
   "schema_version": 1,
-  "app_git_commit": "6271efd47d37ccddf3d6edccaef762eb39341f29"
+  "app_git_commit": "3ec68f8d808a96b1f3792914a96161f89495d7e2"
 }
