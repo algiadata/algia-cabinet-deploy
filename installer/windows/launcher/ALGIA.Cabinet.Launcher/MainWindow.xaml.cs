@@ -35,9 +35,9 @@ namespace ALGIA.Cabinet.Launcher
             RootDir = LoadSavedRootDir();
 
             RefreshInstallDisplay();
-            AppendLog("ALGIA Cabinet Launcher initialisÃ©.");
+            AppendLog("ALGIA Cabinet Launcher initialisé.");
             AppendLog("Package : " + PackageDir);
-            AppendLog("Dossier dâ€™installation : " + RootDir);
+            AppendLog("Dossier d'installation : " + RootDir);
         }
 
         private void LoadHeaderLogoSafe()
@@ -106,7 +106,7 @@ namespace ALGIA.Cabinet.Launcher
             }
             catch
             {
-                // Ne jamais bloquer le launcher pour une prÃ©fÃ©rence locale.
+                // Ne jamais bloquer le launcher pour une préférence locale.
             }
 
             return PackageDir;
@@ -117,11 +117,11 @@ namespace ALGIA.Cabinet.Launcher
             try
             {
                 File.WriteAllText(SavedRootPathFile(), RootDir);
-                AppendLog("Dossier mÃ©morisÃ© : " + RootDir);
+                AppendLog("Dossier mémorisé : " + RootDir);
             }
             catch (Exception ex)
             {
-                AppendLog("Impossible de mÃ©moriser le dossier : " + ex.Message);
+                AppendLog("Impossible de mémoriser le dossier : " + ex.Message);
             }
         }
 
@@ -160,7 +160,7 @@ namespace ALGIA.Cabinet.Launcher
 
             if (!File.Exists(envPath))
             {
-                AdminPasswordText.Text = "Mot de passe temporaire : non crÃ©Ã©";
+                AdminPasswordText.Text = "Mot de passe temporaire : non créé";
                 return;
             }
 
@@ -174,7 +174,7 @@ namespace ALGIA.Cabinet.Launcher
                 }
             }
 
-            AdminPasswordText.Text = "Mot de passe temporaire : non trouvÃ©";
+            AdminPasswordText.Text = "Mot de passe temporaire : non trouvé";
         }
 
         private void AppendLog(string text)
@@ -355,7 +355,7 @@ namespace ALGIA.Cabinet.Launcher
                 return;
             }
 
-            SetStatus("ExÃ©cution : " + Path.GetFileName(scriptPath));
+            SetStatus("Exécution : " + Path.GetFileName(scriptPath));
 
             var args = "-NoProfile -ExecutionPolicy Bypass -File " + QuoteArg(scriptPath);
 
@@ -367,14 +367,14 @@ namespace ALGIA.Cabinet.Launcher
             RefreshInstallDisplay();
 
             if (code == 0)
-                SetStatus("TerminÃ© : " + Path.GetFileName(scriptPath));
+                SetStatus("Terminé : " + Path.GetFileName(scriptPath));
             else
                 SetStatus("Erreur : " + Path.GetFileName(scriptPath) + " code " + code);
         }
 
         private async void CheckMachine_Click(object sender, RoutedEventArgs e)
         {
-            SetStatus("VÃ©rification machine...");
+            SetStatus("Vérification machine...");
 
             AppendLog("Test docker --version");
             var dockerCode = await RunCommandAsync("docker --version");
@@ -388,17 +388,17 @@ namespace ALGIA.Cabinet.Launcher
             var infoCode = await RunCommandAsync("docker info");
 
             if (infoCode == 0)
-                AppendLog("Docker daemon dÃ©marrÃ©.");
+                AppendLog("Docker daemon démarré.");
             else
                 AppendLog("Docker daemon non disponible. Lance Docker Desktop.");
 
             if (File.Exists(Path.Combine(RootDir, ".env")))
-                AppendLog(".env prÃ©sent.");
+                AppendLog(".env présent.");
             else
                 AppendLog(".env absent, il sera crÃ©Ã© Ã  l'installation.");
 
             RefreshInstallDisplay();
-            SetStatus("VÃ©rification terminÃ©e");
+            SetStatus("Vérification terminée");
         }
 
         private void ChooseFolder_Click(object sender, RoutedEventArgs e)
@@ -413,17 +413,17 @@ namespace ALGIA.Cabinet.Launcher
                 RootDir = dialog.SelectedPath;
                 SaveRootDirPreference();
                 RefreshInstallDisplay();
-                AppendLog("Dossier dâ€™installation sÃ©lectionnÃ© : " + RootDir);
+                AppendLog("Dossier d'installation sélectionné : " + RootDir);
 
                 try
                 {
                     PrepareSelectedFolder();
-                    AppendLog("Le dossier sÃ©lectionnÃ© est prÃªt.");
+                    AppendLog("Le dossier sélectionné est prêt.");
                 }
                 catch (Exception ex)
                 {
-                    AppendLog("Erreur prÃ©paration dossier : " + ex.Message);
-                    MessageBox.Show("Erreur prÃ©paration dossier :\n" + ex.Message, "ALGIA Cabinet Launcher", MessageBoxButton.OK, MessageBoxImage.Error);
+                    AppendLog("Erreur préparation dossier : " + ex.Message);
+                    MessageBox.Show("Erreur préparation dossier :\n" + ex.Message, "ALGIA Cabinet Launcher", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -435,7 +435,7 @@ namespace ALGIA.Cabinet.Launcher
             if (!Directory.Exists(backupsRoot))
             {
                 MessageBox.Show(
-                    "Aucun dossier de sauvegarde trouvÃ© :\n" + backupsRoot,
+                    "Aucun dossier de sauvegarde trouvé :\n" + backupsRoot,
                     "Restauration ALGIA Cabinet",
                     MessageBoxButton.OK,
                     MessageBoxImage.Information
@@ -474,7 +474,7 @@ namespace ALGIA.Cabinet.Launcher
                 Top = 18,
                 Width = 800,
                 Height = 28,
-                Text = "SÃ©lectionnez la sauvegarde Ã  restaurer",
+                Text = "Sélectionnez la sauvegarde Ã  restaurer",
                 Font = new System.Drawing.Font("Segoe UI", 12, System.Drawing.FontStyle.Bold)
             };
             form.Controls.Add(title);
@@ -485,7 +485,7 @@ namespace ALGIA.Cabinet.Launcher
                 Top = 48,
                 Width = 800,
                 Height = 24,
-                Text = "Les sauvegardes sont triÃ©es de la plus rÃ©cente Ã  la plus ancienne.",
+                Text = "Les sauvegardes sont triées de la plus récente Ã  la plus ancienne.",
                 Font = new System.Drawing.Font("Segoe UI", 9)
             };
             form.Controls.Add(hint);
@@ -597,14 +597,14 @@ namespace ALGIA.Cabinet.Launcher
 
             if (string.IsNullOrWhiteSpace(backupDir))
             {
-                AppendLog("Restauration annulÃ©e.");
+                AppendLog("Restauration annulée.");
                 return;
             }
 
             AppendLog("Sauvegarde choisie : " + backupDir);
 
             var confirm = MessageBox.Show(
-                "Restaurer cette sauvegarde ?\n\n" + backupDir + "\n\nCette action remplace les donnÃ©es actuelles.",
+                "Restaurer cette sauvegarde ?\n\n" + backupDir + "\n\nCette action remplace les données actuelles.",
                 "Confirmation restauration",
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Warning
@@ -612,7 +612,7 @@ namespace ALGIA.Cabinet.Launcher
 
             if (confirm != MessageBoxResult.Yes)
             {
-                AppendLog("Restauration annulÃ©e par lâ€™utilisateur.");
+                AppendLog("Restauration annulée par l'utilisateur.");
                 return;
             }
 
